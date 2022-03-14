@@ -1,2 +1,5 @@
-all: assignment.c
-	gcc assignment.c -o assignment.exe
+all: asg6.cu
+	gcc asg6.cu -o assignment.exe
+
+clean:
+	rm assignment.exe
