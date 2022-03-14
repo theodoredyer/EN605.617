@@ -1,0 +1,14 @@
+One question I have about the implementation of the stretch problem before getting into analysis
+is that on line 88 they are seemingly attempting to use a register to store an array, I thought via module \
+lectures that registers were only able to hold single values, so not sure exactly how this works or if it works. 
+
+Something I find particularly impressive about this implementation is the care put into validation and testing
+results, I generally just did my testing by observing console output without writing detailed tests which are included in the stretch. 
+
+Additionally I appreciate the implementation of flags for setting debug output to be included or excluded, this is 
+a practice that is undoubtedly useful but I rarely find myself taking the time to include it in my own assignments. 
+
+Another positive aspect of the stretch implementation is the inclusion of performance testing via timed executions.
+
+Lastly the inclusion of multiple different types of memory and the modularization of breaking up copying to/from
+each type of memory makes this implementation easy to read. 

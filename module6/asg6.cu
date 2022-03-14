@@ -14,10 +14,10 @@ Chance Pascale
 #include <stdio.h>
 #include <stdlib.h>
 
-#define KERNEL_LOOP 1024
+#define KERNEL_LOOP 1028
 #define KERNEL_SIZE 32
 
-__constant__ static const int const_data_test = 1;
+__constant__ static const int const_data_test = 2;
 
 
 // from global_memory.cu file provided in Module 4 Vocareum lab
@@ -65,9 +65,10 @@ const_register_add()
 - Return:
     Void, however upon return data[x] = data[x] + const_data_test
 */
-__global__ void const_register_add(int * const data, const int num_elements)
+__global__ void const_register_test(int * const data, const int num_elements)
 {
         const int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+        printf("tid = %d\n", tid);
 
         // Note - if tid > num_elements we are likely in a scenario where we 
         // do not have adequate registers to allocate to each thread either way
@@ -77,6 +78,7 @@ __global__ void const_register_add(int * const data, const int num_elements)
                 // d_tmp will be stored in a register. 
                 int d_tmp = data[tid];
                 d_tmp = d_tmp + const_data_test;
+                d_tmp = d_tmp * const_data_test;
                 data[tid] = d_tmp;
         }
 }
@@ -94,7 +96,7 @@ no_const_register_add()
 - Return:
     Void, however upon return data[i] = data[i] + 1
 */
-__global__ void no_const_register_add(int * const data, const int num_elements)
+__global__ void no_const_register_test(int * const data, const int num_elements)
 {
         const int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -106,33 +108,39 @@ __global__ void no_const_register_add(int * const data, const int num_elements)
                 // d_tmp will be stored in a register. 
                 int d_tmp = data[tid];
                 d_tmp = d_tmp + 2;
+                d_tmp = d_tmp - 1;
                 data[tid] = d_tmp;
         }
 }
 
-__host__ void gpu_register_test(void)
+__host__ void gpu_register_test(int modifier)
 {
-        const int num_elements = KERNEL_LOOP;
+        const int num_elements = KERNEL_LOOP / modifier;
         const int num_threads = KERNEL_SIZE;
         const int num_blocks = (num_elements + num_threads - 1)/num_threads;
         const int num_bytes = num_elements * sizeof(int);
 
-        unsigned int * d_gpu;
+        int * d_gpu;
+        int * dc_gpu;
 
-        unsigned int i_host_data[num_elements];
-        unsigned int o_host_data[num_elements];
+        int i_host_data[num_elements];
+        int o_host_data[num_elements];
 
-        // Allocate memory and send data to device
-        cudaMalloc(&d_gpu, num_bytes);
         generate_data(i_host_data);
 
         // #########################################################################################
         // Start - Pure register variable test.
+        
+        printf("\nStarting pure register variable test...\n");
+
+        // Allocate memory and send data to device
+        cudaMalloc(&d_gpu, num_bytes);
+
         cudaEvent_t start_time = get_time();
-        cudaMemcpy(data_gpu, i_host_data, num_bytes, cudaMemcpyHostToDevice);
+        cudaMemcpy(d_gpu, i_host_data, num_bytes, cudaMemcpyHostToDevice);
 
         // Execute kernel operation
-        no_const_register_add <<<num_blocks, num_threads>>>(d_gpu, num_elements);
+        no_const_register_test <<<num_blocks, num_threads>>>(d_gpu, num_elements);
 
         // Wait for the GPU launched work to complete
         cudaThreadSynchronize();        
@@ -141,7 +149,7 @@ __host__ void gpu_register_test(void)
         // Return data from device back to host
         cudaMemcpy(o_host_data, d_gpu, num_bytes,cudaMemcpyDeviceToHost);
 
-        printf("\nOutput should be (input + 2)\n");
+        printf("\nOutput should be (input + 1)\n");
         for (int i = 0; i < num_elements; i++){
                 printf("Input value: %d, output: %d\n", i_host_data[i], o_host_data[i]);
         }
@@ -150,7 +158,7 @@ __host__ void gpu_register_test(void)
         cudaEvent_t end_time = get_time();
         cudaEventSynchronize(end_time);
         float pure = 0;
-        cudaEventElapsedTime(&delta, start_time, end_time);
+        cudaEventElapsedTime(&pure, start_time, end_time);
         printf("Time from allocation to completion for pure register variable test: %f \n", pure);
 
         cudaFree((void* ) d_gpu);
@@ -162,33 +170,40 @@ __host__ void gpu_register_test(void)
 
         // #########################################################################################
         // Start - Register / Constant memory test
+
+        // Allocate memory and send data to device
+        cudaMalloc(&dc_gpu, num_bytes);
+
+        printf("\nStarting register variable + constant memory test...\n");
         cudaEvent_t const_start_time = get_time();
-        cudaMemcpy(data_gpu, i_host_data, num_bytes, cudaMemcpyHostToDevice);
+        cudaMemcpy(dc_gpu, i_host_data, num_bytes, cudaMemcpyHostToDevice);
 
         // Execute kernel operation
-        const_register_add <<<num_blocks, num_threads>>>(d_gpu, num_elements);
+        const_register_test <<<num_blocks, num_threads>>>(dc_gpu, num_elements);
 
         // Wait for the GPU launched work to complete
         cudaThreadSynchronize();        
         cudaGetLastError();
 
         // Return data from device back to host
-        cudaMemcpy(o_host_data, d_gpu, num_bytes,cudaMemcpyDeviceToHost);
+        cudaMemcpy(o_host_data, dc_gpu, num_bytes, cudaMemcpyDeviceToHost);
 
-        printf("Output should be (input + const_data_test) = (input + 1)");
+        printf("\nOutput should be = (input + 2) * 2\n");
         for (int i = 0; i < num_elements; i++){
                 printf("Input value: %d, output: %d\n", i_host_data[i], o_host_data[i]);
         }
 
         // finish timing performance and record result
-        cudaEvent_t end_time = get_time();
+        end_time = get_time();
         cudaEventSynchronize(end_time);
         float delta = 0;
-        cudaEventElapsedTime(&delta, start_time, end_time);
-        printf("Time from allocation to completion for pure register variable test: %f \n", pure);
+        cudaEventElapsedTime(&delta, const_start_time, end_time);
+
+        printf("\nResults for test size = %d", num_elements);
+        printf("\nTime from allocation to completion for pure register variable test: %f \n", pure);
         printf("Time from allocation to completion for constant memory / register variable test: %f \n", delta);
 
-        cudaFree((void* ) d_gpu);
+        cudaFree((void* ) dc_gpu);
         cudaDeviceReset();
          
         // End - Pure register variable test.
@@ -203,7 +218,7 @@ void execute_host_functions()
 
 void execute_gpu_functions()
 {
-	gpu_register_test();
+	gpu_register_test(1);
 }
 
 
