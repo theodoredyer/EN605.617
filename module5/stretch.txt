@@ -1,0 +1,14 @@
+Complete stretch problem, which for this assignment means to review the code below 
+and recognize at least one major element of your assignment that this code does 
+not perform.  
+
+Presume that this is all that was submitted but that it compiled and 
+ran correctly. If there are elements that you like state them as well.
+
+
+The included implementation of this problem does not include a number of things that 
+my implementation does. Firstly, the included implementation only has functionality 
+for adding arrays utilizing shared memory, I incldued functionality for addition,
+subtraction, multiplication, and division. Next, when looking at constant memory this 
+stretch solution doesn't include static constants in the header like I did, following
+the implementation in the provided constant_memory.cu
