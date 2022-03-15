@@ -11,6 +11,8 @@ __host__ void generate_rand_data(unsigned int * data, unsigned int num_elements)
 	for(unsigned int i=0; i < num_elements; i++)
 	{
 		//PLACE YOUR CODE HERE
+		data[i] = (unsigned int) rand();
+		// end of my code
 	}
 }
 
@@ -27,8 +29,16 @@ __device__ void simple_squaring_operation(unsigned int * const data,
 				const unsigned int tid)
 {
 	//square the mem value and overwrite
-	
+
 	//PLACE YOUR CODE HERE
+	// I'm assuming because on line 144 we assign num_elements to 
+	// NUM_THREADS that I can use this interchangeably. 
+	if(tid < NUM_THREADS) {
+		int d_tmp = data[tid];
+		d_tmp = d_tmp * d_tmp;
+		data[tid] = d_tmp;
+	}
+	// end of my code
 }
 
 __global__ void gpu_register_array_operation(unsigned int * const data, const unsigned int num_elements)
@@ -187,6 +197,12 @@ __host__ float execute_register_memory_operations(void)
 	//free device and host memory allocations
 	//PLACE YOUR CODE HERE
 
+	// Unless I'm missing something it doesn't look like host memory is 
+	// ever allocated via cudaHostAlloc, and the only call to cudaMalloc
+	// is for d_data so it appears like only one free is necessary, double checking.
+	cudaFree(d_data);
+	// end of my code
+
 	return delta;
 }
 
@@ -207,6 +223,9 @@ __host__ float execute_shared_memory_operations()
 
 	//set CUDA stream
   	//PLACE YOUR CODE HERE
+	cudaStream_t stream; 
+  	cudaStreamCreate(&stream); 
+	// end of my code
 
 	//start timing metric
 	cudaEventRecord(kernel_start, 0);
@@ -259,8 +278,8 @@ int main(void) {
   print_all_CUDA_devices_and_properties();
 
   //test harness for timing some kernels using streams and events
-	float delta_shared = //PLACE YOUR CODE HERE TO USE SHARED MEMORY FOR OPERATIONS
-	float delta_register = //PLACE YOUR CODE HERE TO USE REGISTER MEMORY FOR OPERATIONS
+	float delta_shared = execute_shared_memory_operations();
+	float delta_register = execute_register_memory_operations();
 
 	//print out the results of the time executions returned by the prev methods
 	printf("========================\n");
