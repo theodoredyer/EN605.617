@@ -201,6 +201,7 @@ __host__ float execute_register_memory_operations(void)
 	// ever allocated via cudaHostAlloc, and the only call to cudaMalloc
 	// is for d_data so it appears like only one free is necessary, double checking.
 	cudaFree(d_data);
+	cudaDeviceReset();
 	// end of my code
 
 	return delta;
