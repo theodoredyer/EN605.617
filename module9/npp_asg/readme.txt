@@ -1,9 +1,8 @@
-Sample: boxFilterNPP
-Minimum spec: SM 2.0
+- Note, I wasn't able to figure out the specifics of the pagerank algorithm to understand how to modify vertices and edges without breaking the structure
+of the underlying graph, more specifially I'm not sure what the source indices and destination offsets correspond to in the example as the values don't seem 
+to line up with what I thought they would be.
 
-A NPP CUDA Sample that demonstrates how to use NPP FilterBox function to perform a Box Filter.
+Anyways..
 
-Key concepts:
-Performance Strategies
-Image Processing
-NPP Library
+Submitted is just an example using boxfilter to modify a picture of my dog Ghost, provided are the before and after PNG and PGM files, source file, and makefile. 
+
