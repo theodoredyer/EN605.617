@@ -251,7 +251,7 @@ endif
 # Target rules
 all: build
 
-build: thrust_example                                                                                                      	
+build: thrust_asg                                                                                                    	
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -260,21 +260,21 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-thrust_example.o:thrust_example.cpp
+thrust_asg.o:thrust_asg.cpp
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-thrust_example: thrust_example.o
+thrust_asg: thrust_asg.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
              
 
 run: build
-	$(EXEC) ./thrust_example
+	$(EXEC) ./thrust_asg
 
 clean:
-	rm -f thrust_example thrust_example.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/thrust_example
+	rm -f thrust_asg thrust_asg.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/thrust_asg
 
 clobber: clean
     TARGET_ARCH ?= armv7l
