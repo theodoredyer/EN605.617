@@ -26,7 +26,7 @@
 ///
 //  Constants
 //
-const int ARRAY_SIZE = 1000;
+const int ARRAY_SIZE = 10;
 
 ///
 //  Create an OpenCL context on the first available platform using
@@ -252,7 +252,7 @@ int main(int argc, char** argv)
     }
 
     // Create OpenCL program from HelloWorld.cl kernel source
-    program = CreateProgram(context, device, "HelloWorld.cl");
+    program = CreateProgram(context, device, "assignment.cl");
     if (program == NULL)
     {
         Cleanup(context, commandQueue, program, kernel, memObjects);
@@ -325,7 +325,20 @@ int main(int argc, char** argv)
     // Output the result buffer
     for (int i = 0; i < ARRAY_SIZE; i++)
     {
-        std::cout << result[i] << " ";
+        std::cout << "a = " << a[i] << ", b = " << b[i] << std::endl;
+        int flag = i % 5;
+        if(flag == 0) {
+            std::cout << "Executing Addition (a + b) = " << result[i] << " " << std::endl;
+        } else if(flag == 1) {
+            std::cout << "Executing Subtraction (b - a) = " << result[i] << " " << std::endl;
+        } else if(flag == 2) {
+            std::cout << "Executing Multiplication (a * b) = " << result[i] << " " << std::endl;
+        } else if(flag == 3) {
+            std::cout << "Executing Division (b / a) = " << result[i] << " " << std::endl;
+        } else if(flag == 4) {
+            std::cout << "Executing Exponent operation (a * a) = " << result[i] << " " << std::endl;
+        }
+        std::cout << std::endl;
     }
     std::cout << std::endl;
     std::cout << "Executed program succesfully." << std::endl;
