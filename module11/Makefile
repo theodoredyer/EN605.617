@@ -1,2 +1,8 @@
-all: assignment.c
-	gcc assignment.c -o assignment.exe
+all: Convolution.cpp
+	nvcc Convolution.cpp -lOpenCL -o assignment.exe
+
+run:
+	time assignment.exe
+
+clean:
+	rm assignment.exe

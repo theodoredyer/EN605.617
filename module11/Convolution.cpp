@@ -30,6 +30,8 @@ Chance Pascale
 #include <fstream>
 #include <sstream>
 #include <string>
+// #include <chrono>
+// using namespace std::chrono;
 
 #ifdef __APPLE__
 #include <OpenCL/cl.h>
@@ -158,6 +160,9 @@ int main(int argc, char** argv)
 	cl_mem inputSignalBuffer;
 	cl_mem outputSignalBuffer;
 	cl_mem maskBuffer;
+
+	// Setup timer
+	// auto start = high_resolution_clock::now();
 
     // First, select an OpenCL platform to run on.  
 	errNum = clGetPlatformIDs(0, NULL, &numPlatforms);
@@ -353,6 +358,11 @@ int main(int argc, char** argv)
 		}
 		std::cout << std::endl;
 	}
+
+	// Calculate runtime
+	// auto stop = high_resolution_clock::now();
+	// auto duration = duration-cast<microseconds>(stop - start);
+	// std::cout << "Execution time: " << duration.count() << " microseconds." << endl;
 
     std::cout << std::endl << "Executed program succesfully." << std::endl;
 
